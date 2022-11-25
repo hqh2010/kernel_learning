@@ -877,6 +877,27 @@ uos@uos:/media/linux-4.19.256/busybox-1.35.0/_install$ ls
 bin  linuxrc  mount_dir_test  myproc  sbin  usr
 uos@uos:/media/linux-4.19.256/busybox-1.35.0/_install/myproc$ ls
 mount_test  mount_test.c
+uos@uos:/media/linux-4.19.256/busybox-1.35.0/_install/myproc$ cat mount_test.c
+.......
+char* const container_args[] = {
+    "/bin/sh",
+    NULL
+};
+ 
+int container_main(void* arg)
+{
+    printf("Container[%5d] - inside the container!\n", getpid());
+    sethostname("container",10); 
+    /* 重新mount proc文件系统到 /proc下 */
+    // system("mount -t proc proc /proc");
+    system("mount --bind /myproc /mount_dir_test");
+    int ret = execv(container_args[0], container_args);
+    if (ret) {
+        printf("execv cmd ret:%d info:%s\n", ret, strerror(errno));
+    }
+    return 1;
+}
+......
 ```
 
 ```bash
